@@ -1,0 +1,44 @@
+{
+	"schemaVersion": 1,
+	"id": "hiteffect",
+	"version": "${version}",
+	"name": "hiteffect",
+	"description": "Customizes hit-related visual effects: the hurt flash color, flashing armor, items and arms, and hit particles.",
+	"authors": [
+		"urntt"
+	],
+	"contact": {
+		"homepage": "https://github.com/urntt/hiteffect",
+		"sources": "https://github.com/urntt/hiteffect",
+		"issues": "https://github.com/urntt/hiteffect/issues"
+	},
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.urntt.hiteffect.HitEffectClient"
+		],
+		"modmenu": [
+			"com.urntt.hiteffect.compat.ModMenuIntegration"
+		],
+		"oneconfig:config": [
+			"com.urntt.hiteffect.compat.oneconfig.OneConfigIntegration"
+		]
+	},
+	"mixins": [
+		{
+			"config": "hiteffect.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=${loader_version}",
+		"minecraft": "~${minecraft_version}",
+		"java": ">=${java_version}",
+		"fabric-api": ">=${fabric_api_version}"
+	},
+	"suggests": {
+		"modmenu": "*",
+		"oneconfig": "*"
+	}
+}
