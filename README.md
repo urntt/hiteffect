@@ -66,7 +66,11 @@ xvfb-run -a -s "-screen 0 1920x1080x24" ./gradlew runClientGameTest
 
 Screenshots taken by the tests are saved to `build/run/clientGameTest/screenshots/`.
 
-OneConfig is not part of the test client, so its integration is only compiled against OneConfig's API there.
+By default, the development client and the tests run without OneConfig. Add `-PoneConfigRuntime=true` to run them with OneConfig installed, which offers the OneConfig mode. In that run, the tests check the OneConfig mode and skip the in-world effect checks, which do not depend on OneConfig:
+
+```bash
+./gradlew runClientGameTest -PoneConfigRuntime=true
+```
 
 ## License
 

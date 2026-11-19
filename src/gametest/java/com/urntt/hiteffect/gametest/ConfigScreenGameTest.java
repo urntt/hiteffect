@@ -10,27 +10,34 @@ import com.urntt.hiteffect.config.ConfigMode;
 import com.urntt.hiteffect.config.EffectValues;
 import com.urntt.hiteffect.config.HitEffectConfig;
 import com.urntt.hiteffect.config.HurtColors;
+import com.urntt.hiteffect.config.SettingKeys;
 import com.urntt.hiteffect.gui.HitEffectConfigScreen;
 import com.urntt.hiteffect.gui.IntSlider;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Checks the defaults, the configuration modes and the color inputs of the configuration screen. OneConfig is not
- * installed in the test client, so only the disabled and custom modes are offered.
+ * Checks the defaults, the configuration modes and the color inputs of the configuration screen. The test client runs
+ * without OneConfig by default and with it when Gradle is given {@code -PoneConfigRuntime=true}; the checks follow
+ * whichever modes are offered.
  */
 @SuppressWarnings("UnstableApiUsage")
 public final class ConfigScreenGameTest implements FabricClientGameTest {
@@ -45,7 +52,9 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 		HitEffectConfig saved = HitEffectConfig.load(HitEffectConfig.defaultPath());
 		check(saved.storedMode() == ConfigMode.CUSTOM && EffectValues.copyOf(saved).equals(EffectValues.DEFAULTS),
 				"the config file should be created with the defaults");
-		check(!OneConfigBridge.isAvailable(), "OneConfig is not installed in the test client");
+		boolean oneConfigInstalled = FabricLoader.getInstance().isModLoaded(OneConfigBridge.MOD_ID);
+		check(OneConfigBridge.isAvailable() == oneConfigInstalled,
+				"OneConfig mode should be available exactly when OneConfig is installed (installed: " + oneConfigInstalled + ")");
 
 		context.setScreen(() -> new HitEffectConfigScreen(null));
 		parkCursor(context);
@@ -53,19 +62,7 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 		check(settingsActive(context), "settings should be editable in custom mode");
 
 		checkColorInputs(context, config);
-
-		clickModeButton(context);
-		check(config.storedMode() == ConfigMode.DISABLED, "the mode button should switch to disabled, was " + config.storedMode());
-		check(HitEffectConfig.load(HitEffectConfig.defaultPath()).storedMode() == ConfigMode.DISABLED, "the disabled mode should be saved");
-		check(settingsInactive(context), "settings should be greyed out in disabled mode");
-		check(EffectValues.copyOf(HitEffectClient.settings()).equals(EffectValues.DISABLED), "disabled mode should apply vanilla settings");
-		parkCursor(context);
-		context.takeScreenshot("hiteffect-config-disabled");
-
-		clickModeButton(context);
-		check(config.storedMode() == ConfigMode.CUSTOM,
-				"without OneConfig the mode button should cycle back to custom, was " + config.storedMode());
-		check(settingsActive(context), "settings should be editable again in custom mode");
+		checkModeCycle(context, config, oneConfigInstalled);
 
 		for (String language : List.of("en_us", "zh_cn")) {
 			setLanguage(context, language);
@@ -73,6 +70,57 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 		}
 		setLanguage(context, "en_us");
 		context.setScreen(() -> null);
+	}
+
+	/**
+	 * Clicks the mode button through every offered mode and back to custom. OneConfig mode is only offered while
+	 * OneConfig is installed.
+	 */
+	private static void checkModeCycle(final ClientGameTestContext context, final HitEffectConfig config, final boolean oneConfigInstalled) {
+		List<ConfigMode> modes = oneConfigInstalled
+				? List.of(ConfigMode.CUSTOM, ConfigMode.ONECONFIG, ConfigMode.DISABLED)
+				: List.of(ConfigMode.CUSTOM, ConfigMode.DISABLED);
+		// A custom value that differs from OneConfig's default shows which settings apply in OneConfig mode.
+		context.runOnClient(client -> config.setArmorFlash(false));
+
+		for (int i = 1; i <= modes.size(); i++) {
+			ConfigMode expected = modes.get(i % modes.size());
+			clickWidget(context, widget -> widget instanceof CycleButton<?> cycle && cycle.getValue() instanceof ConfigMode);
+			context.waitForScreen(HitEffectConfigScreen.class);
+			check(config.storedMode() == expected, "the mode button should switch to " + expected + ", was " + config.storedMode());
+			check(HitEffectConfig.load(HitEffectConfig.defaultPath()).storedMode() == expected, "the " + expected + " mode should be saved");
+			if (expected == ConfigMode.CUSTOM) {
+				check(settingsActive(context), "settings should be editable again in custom mode");
+			} else {
+				check(settingsInactive(context), "settings should be greyed out in " + expected + " mode");
+			}
+			parkCursor(context);
+			context.takeScreenshot("hiteffect-config-" + expected.name().toLowerCase(Locale.ROOT));
+
+			if (expected == ConfigMode.DISABLED) {
+				check(EffectValues.copyOf(HitEffectClient.settings()).equals(EffectValues.DISABLED), "disabled mode should apply vanilla settings");
+			} else if (expected == ConfigMode.ONECONFIG) {
+				checkOneConfigMode(context);
+			}
+		}
+
+		context.runOnClient(client -> config.setArmorFlash(EffectValues.DEFAULTS.armorFlash()));
+	}
+
+	/** In OneConfig mode, OneConfig's settings apply and the screen links to the mod's OneConfig page. */
+	private static void checkOneConfigMode(final ClientGameTestContext context) {
+		check(HitEffectClient.settings().armorFlash(), "OneConfig mode should apply OneConfig's settings instead of the custom ones");
+
+		Component openLabel = Component.translatable(SettingKeys.OPEN_ONECONFIG);
+		clickWidget(context, widget -> widget instanceof Button && widget.getMessage().equals(openLabel));
+		context.waitFor(client -> client.gui.screen() != null && !(client.gui.screen() instanceof HitEffectConfigScreen));
+		context.waitTicks(20);
+		context.takeScreenshot("hiteffect-oneconfig-page");
+		String screen = context.computeOnClient(client -> client.gui.screen().getClass().getName());
+		LOGGER.info("Open in OneConfig shows {}", screen);
+		context.setScreen(() -> new HitEffectConfigScreen(null));
+		// The option list positions its widgets while rendering, so let it render before clicking.
+		context.waitTicks(2);
 	}
 
 	/** Shows the whole screen in two screenshots, scrolled to the top and to the bottom. */
@@ -119,20 +167,20 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 		LOGGER.info("Hex box and RGB sliders stay in sync: {} -> {}", HurtColors.toHex(green), channels);
 	}
 
-	private static void clickModeButton(final ClientGameTestContext context) {
+	/** Clicks the first widget of the open screen that matches, with the real mouse. */
+	private static void clickWidget(final ClientGameTestContext context, final Predicate<AbstractWidget> matches) {
 		double[] position = context.computeOnClient(client -> {
-			AbstractWidget button = widgets(client).stream()
-					.filter(widget -> widget instanceof CycleButton<?> cycle && cycle.getValue() instanceof ConfigMode)
+			AbstractWidget widget = widgets(client).stream()
+					.filter(matches)
 					.findFirst()
-					.orElseThrow(() -> new AssertionError("mode button not found"));
+					.orElseThrow(() -> new AssertionError("widget to click not found"));
 			Window window = client.getWindow();
 			double scale = window.getScreenWidth() / (double) window.getGuiScaledWidth();
-			return new double[] {(button.getX() + button.getWidth() / 2.0) * scale, (button.getY() + button.getHeight() / 2.0) * scale};
+			return new double[] {(widget.getX() + widget.getWidth() / 2.0) * scale, (widget.getY() + widget.getHeight() / 2.0) * scale};
 		});
 		context.getInput().setCursorPos(position[0], position[1]);
 		context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
 		context.waitTick();
-		context.waitForScreen(HitEffectConfigScreen.class);
 	}
 
 	/** Moves the cursor into a corner, so that no tooltip covers the screenshot. */

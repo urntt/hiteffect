@@ -5,6 +5,7 @@ import static com.urntt.hiteffect.gametest.GameTestSupport.countFlashPixels;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.urntt.hiteffect.HitEffectClient;
+import com.urntt.hiteffect.compat.OneConfigBridge;
 import com.urntt.hiteffect.config.ConfigMode;
 import com.urntt.hiteffect.config.EffectValues;
 import com.urntt.hiteffect.config.HitEffectConfig;
@@ -19,6 +20,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -57,6 +59,13 @@ public final class EffectsGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
+		if (FabricLoader.getInstance().isModLoaded(OneConfigBridge.MOD_ID)) {
+			// OneConfig's notifications cover parts of the screenshots, and these checks do not depend on OneConfig;
+			// the run with OneConfig covers its integration in ConfigScreenGameTest.
+			LOGGER.info("Skipping the effect checks because OneConfig is installed");
+			return;
+		}
+
 		configure(context, c -> {
 			c.setMode(ConfigMode.CUSTOM);
 			applyDefaults(c);

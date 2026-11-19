@@ -77,12 +77,14 @@ The mod version itself follows [Semantic Versioning](https://semver.org/); the `
 ### Testing
 
 - The client game tests in `src/gametest` start Minecraft and check the configuration modes and screen, the open-configuration key, the hurt overlay color, the equipment, item and first-person arm flash (by counting pixels in screenshots), and the hit particles. Keep them passing and extend them when behavior changes.
+- They run twice: without OneConfig, and with `-PoneConfigRuntime=true`, which loads OneConfig and its dependencies (Fabric Language Kotlin, Compose Multiplatform) from Modrinth's Maven into the development client. Their Modrinth version ids live in `gradle.properties` next to `oneconfig_version`; update them together. The run with OneConfig checks the OneConfig mode and skips the in-world effect checks, because OneConfig's notifications cover parts of the screenshots.
+- OneConfig stores its settings in the same config directory as the mod's own `hiteffect.json` and watches its files, so its config file must keep a different name (`hiteffect-oneconfig.json`).
 - After porting to a new Minecraft version, run the client game tests. A successful build does not prove that the mixins still have the intended effect.
 - `README.md` describes how to run them, including on a headless machine.
 
 ### CI, releases, and changelog
 
-- GitHub Actions (`.github/workflows/build.yml`) builds the project and runs the client game tests on every push and pull request.
+- GitHub Actions (`.github/workflows/build.yml`) builds the project and runs the client game tests, without and with OneConfig, on every push and pull request.
 - Maintain `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/). Record every user-visible change under `Unreleased` in the same change that introduces it.
 - `.github/workflows/release.yml` builds the mod and publishes a GitHub Release for the project version, with the jar attached and the matching `CHANGELOG.md` section as release notes. It runs when a tag `v<version>` (for example `v1.0.0+26.3`) is pushed, or when started manually on a branch, in which case it creates that tag on the branch's latest commit. It fails if a pushed tag does not match the project version, if the changelog has no section for the version, or if the release already exists.
 - Release only when the user asks. To release, set `mod_version` in `gradle.properties`, rename `Unreleased` in `CHANGELOG.md` to `[<version>] - <YYYY-MM-DD>` above a new empty `Unreleased` section, commit, and push. Then start the release workflow on `main`. Claude Code cloud sessions cannot push tags, so start the workflow through the GitHub Actions API instead.

@@ -19,6 +19,17 @@ repositories {
 			includeGroup 'org.polyfrost.oneconfig'
 		}
 	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = 'Modrinth'
+				url = 'https://api.modrinth.com/maven'
+			}
+		}
+		filter {
+			includeGroup 'maven.modrinth'
+		}
+	}
 }
 
 loom {
@@ -57,6 +68,13 @@ dependencies {
 		clientCompileOnly("org.polyfrost.oneconfig:${module}:${project.oneconfig_version}") {
 			transitive = false
 		}
+	}
+
+	// With -PoneConfigRuntime=true, the development client and the client game tests run with OneConfig installed.
+	if (providers.gradleProperty("oneConfigRuntime").map { it.toBoolean() }.getOrElse(false)) {
+		localRuntime "maven.modrinth:oneconfig:${project.oneconfig_modrinth_id}"
+		localRuntime "maven.modrinth:fabric-language-kotlin:${project.fabric_language_kotlin_modrinth_id}"
+		localRuntime "maven.modrinth:compose-multiplatform:${project.compose_multiplatform_modrinth_id}"
 	}
 }
 
