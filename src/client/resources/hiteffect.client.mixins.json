@@ -1,0 +1,30 @@
+{
+	"required": true,
+	"package": "com.urntt.hiteffect.mixin",
+	"compatibilityLevel": "JAVA_${java_version}",
+	"client": [
+		"AvatarRendererMixin",
+		"CarriedBlockLayerMixin",
+		"ClientPacketListenerMixin",
+		"CrossedArmsItemLayerMixin",
+		"CustomHeadLayerMixin",
+		"DolphinCarryingItemLayerMixin",
+		"EquipmentLayerRendererMixin",
+		"FirstPersonHandsAndItemsRendererMixin",
+		"FoxHeldItemLayerMixin",
+		"ItemInHandLayerMixin",
+		"MultiPlayerGameModeMixin",
+		"OverlayTextureAccessor",
+		"PandaHoldsItemLayerMixin",
+		"PlayerItemInHandLayerMixin",
+		"RenderSetupAccessor",
+		"RenderTypeAccessor",
+		"SkullBlockRendererMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
