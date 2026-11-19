@@ -2,16 +2,16 @@
 
 A simple client-side Fabric mod for Minecraft: Java Edition that lets you customize hit-related visual effects.
 
-- **Flashing equipment.** In vanilla, only an entity's body flashes when it is hurt. With this mod, its armor flashes too, and so do elytra, horse and wolf armor, and saddles.
-- **Flashing items.** Items an entity holds or wears on its head (carved pumpkins, skulls, blocks) flash with it.
-- **First-person arm.** Your arm flashes in first person while you are hurt.
+- **Flashing equipment.** In vanilla, only an entity's body flashes when it is hurt. With this mod, its equipment can flash too, each with its own toggle: armor, elytra, horse armor, wolf armor (with its cracks), saddles, and other equipment (llama carpets, happy ghast harnesses, nautilus armor).
+- **Flashing items.** Items held or carried by an entity can flash with it, each with its own toggle: held items, items worn on the head (carved pumpkins, skulls, blocks), and the items of villagers, foxes, pandas and dolphins and the blocks of endermen.
+- **First-person arm.** Your arm can flash in first person while you are hurt.
 - **Hurt color.** Pick the flash color (hex code, RGB sliders, or presets) and its strength, or let it cycle through a rainbow.
-- **Sharpness particles on every hit.** Your melee hits show enchanted hit particles whatever you hold.
-- **Crit particles on every hit.** Your melee hits can also show critical hit particles (off by default).
+- **Sharpness particles on every hit.** Your melee attacks show enchanted hit particles whatever you hold.
+- **Crit particles on every hit.** Your melee attacks can also show critical hit particles (off by default).
 
-Hit particles follow only your own melee hits, once the server confirms them. Entities caught by a sweep get none, as in vanilla. When vanilla already shows a particle for a hit, for example with a Sharpness sword, it is not shown twice.
+Hit particles appear the moment you attack a mob or player, without waiting for the server. Only the entity you attack gets them; entities caught by a sweep do not, as in vanilla. When the server also sends a particle for that attack, for example with a Sharpness sword, it is not shown twice.
 
-The mod only changes what your client draws. It sends nothing to servers and changes no gameplay.
+The mod is purely client-side: it only changes what your client draws, sends nothing to servers, and changes no gameplay.
 
 ## Installation
 
@@ -38,7 +38,7 @@ The button at the top of the screen selects the mode:
 
 If OneConfig mode is selected but OneConfig is later removed, the custom settings apply until you pick another mode.
 
-In custom mode, everything except the crit particles is on by default, and the hurt color is vanilla red at vanilla strength (30 %). The first preset color restores vanilla red. Settings are saved to `config/hiteffect.json` as soon as you change them.
+In custom mode, every flash toggle and the sharpness particles are on by default, the crit particles are off, and the hurt color is vanilla red at vanilla strength (30 %). The first preset color restores vanilla red. Settings are saved to `config/hiteffect.json` as soon as you change them.
 
 ## Development
 

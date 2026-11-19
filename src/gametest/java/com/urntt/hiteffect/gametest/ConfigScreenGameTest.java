@@ -8,6 +8,7 @@ import com.urntt.hiteffect.HitEffectClient;
 import com.urntt.hiteffect.compat.OneConfigBridge;
 import com.urntt.hiteffect.config.ConfigMode;
 import com.urntt.hiteffect.config.EffectValues;
+import com.urntt.hiteffect.config.FlashPart;
 import com.urntt.hiteffect.config.HitEffectConfig;
 import com.urntt.hiteffect.config.HurtColors;
 import com.urntt.hiteffect.config.SettingKeys;
@@ -42,6 +43,9 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("UnstableApiUsage")
 public final class ConfigScreenGameTest implements FabricClientGameTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger("hiteffect-gametest");
+
+	/** Mouse wheel steps that scroll the screen past its first page, to the item toggles. */
+	private static final int MIDDLE_SCROLL = 8;
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
@@ -81,7 +85,7 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 				? List.of(ConfigMode.CUSTOM, ConfigMode.ONECONFIG, ConfigMode.DISABLED)
 				: List.of(ConfigMode.CUSTOM, ConfigMode.DISABLED);
 		// A custom value that differs from OneConfig's default shows which settings apply in OneConfig mode.
-		context.runOnClient(client -> config.setArmorFlash(false));
+		context.runOnClient(client -> config.setFlashes(FlashPart.ARMOR, false));
 
 		for (int i = 1; i <= modes.size(); i++) {
 			ConfigMode expected = modes.get(i % modes.size());
@@ -104,12 +108,12 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 			}
 		}
 
-		context.runOnClient(client -> config.setArmorFlash(EffectValues.DEFAULTS.armorFlash()));
+		context.runOnClient(client -> config.setFlashes(FlashPart.ARMOR, EffectValues.DEFAULTS.flashes(FlashPart.ARMOR)));
 	}
 
 	/** In OneConfig mode, OneConfig's settings apply and the screen links to the mod's OneConfig page. */
 	private static void checkOneConfigMode(final ClientGameTestContext context) {
-		check(HitEffectClient.settings().armorFlash(), "OneConfig mode should apply OneConfig's settings instead of the custom ones");
+		check(HitEffectClient.settings().flashes(FlashPart.ARMOR), "OneConfig mode should apply OneConfig's settings instead of the custom ones");
 
 		Component openLabel = Component.translatable(SettingKeys.OPEN_ONECONFIG);
 		clickWidget(context, widget -> widget instanceof Button && widget.getMessage().equals(openLabel));
@@ -123,7 +127,7 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 		context.waitTicks(2);
 	}
 
-	/** Shows the whole screen in two screenshots, scrolled to the top and to the bottom. */
+	/** Shows the whole screen in three screenshots: scrolled to the top, partway down, and to the bottom. */
 	private static void screenshotAllOptions(final ClientGameTestContext context, final String language) {
 		context.setScreen(() -> new HitEffectConfigScreen(null));
 		parkCursor(context);
@@ -132,6 +136,10 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 			Window window = client.getWindow();
 			return new double[] {window.getScreenWidth() / 2.0, window.getScreenHeight() / 2.0};
 		});
+		context.getInput().setCursorPos(center[0], center[1]);
+		context.getInput().scroll(-MIDDLE_SCROLL);
+		parkCursor(context);
+		context.takeScreenshot("hiteffect-config-" + language + "-middle");
 		context.getInput().setCursorPos(center[0], center[1]);
 		context.getInput().scroll(-100);
 		parkCursor(context);
@@ -204,7 +212,9 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 						|| widget instanceof IntSlider
 						|| widget instanceof EditBox)
 				.toList();
-		check(settings.size() == 11, "expected 6 toggles, 4 sliders and the hex box, found " + settings.size());
+		// A toggle per flash part, the rainbow and the two particle toggles; red, green, blue and strength.
+		int expected = FlashPart.values().length + 3 + 4 + 1;
+		check(settings.size() == expected, "expected " + expected + " toggles, sliders and the hex box, found " + settings.size());
 		return settings;
 	}
 

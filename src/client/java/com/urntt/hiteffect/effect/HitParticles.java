@@ -6,71 +6,55 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 /**
- * Shows sharpness and critical hit particles on every melee hit of the local player.
+ * Shows sharpness and critical hit particles the moment the local player attacks, entirely on the client.
  *
- * <p>Vanilla computes both on the server and sends them as animation packets, so the client cannot predict them. A
- * hit counts once the server confirms it: a {@code player_attack} damage event caused by the local player on the
- * entity it attacked last. Entities hit by a sweep are not the attacked entity, so they get no particles, as in
- * vanilla. When vanilla also shows a particle for that hit, its animation packet arrives right after the damage event
- * and is skipped, so no hit shows a particle twice.
+ * <p>Only the attacked living entity gets them; entities hit by a sweep do not, as in vanilla. Vanilla computes these
+ * particles on the server and sends them back as animation packets. When such a packet arrives for a particle this
+ * class already showed for an attack on the same entity, it is skipped, so no hit shows a particle twice.
  */
 public final class HitParticles {
-	/** How long an attack waits for the server to confirm the hit. */
-	private static final int CONFIRMATION_TICKS = 40;
-
-	/** How long after showing a particle the matching vanilla animation is skipped. */
-	private static final int DUPLICATE_TICKS = 5;
-
-	private static final int NO_TARGET = -1;
+	/**
+	 * How long a shown particle waits for the server's matching animation, in client ticks. It covers the round trip
+	 * to the server; a packet arriving later than this shows its particle again.
+	 */
+	private static final int SERVER_ANIMATION_TICKS = 40;
 
 	private static final List<Shown> SHOWN = new ArrayList<>();
 	private static int tick;
-	private static int attackedEntityId = NO_TARGET;
-	private static int attackTick;
 
 	private HitParticles() {
 	}
 
 	public static void tick() {
 		tick++;
-		SHOWN.removeIf(shown -> tick - shown.tick > DUPLICATE_TICKS);
+		SHOWN.removeIf(shown -> tick - shown.tick > SERVER_ANIMATION_TICKS);
 	}
 
-	/** Called when the local player attacks {@code target}. */
-	public static void onAttack(final Entity target) {
-		attackedEntityId = target.getId();
-		attackTick = tick;
-	}
-
-	/** Called when the server reports that {@code entity} took damage. */
-	public static void onDamage(final Minecraft minecraft, final Entity entity, final DamageSource source) {
-		LocalPlayer player = minecraft.player;
-		if (player == null || !isConfirmedHit(player, entity, source)) {
+	/** Called when the local player attacks {@code target}, after vanilla handled the attack. */
+	public static void onAttack(final Minecraft minecraft, final Player player, final Entity target) {
+		if (!canHit(player, target)) {
 			return;
 		}
-		attackedEntityId = NO_TARGET;
 
 		EffectSettings settings = HitEffectClient.settings();
 		if (settings.sharpnessParticles()) {
-			show(minecraft, entity, ParticleTypes.ENCHANTED_HIT);
+			show(minecraft, target, ParticleTypes.ENCHANTED_HIT);
 		}
 		if (settings.critParticles()) {
-			show(minecraft, entity, ParticleTypes.CRIT);
+			show(minecraft, target, ParticleTypes.CRIT);
 		}
 	}
 
 	/**
 	 * Whether vanilla should skip showing {@code particle} on {@code entity}, because this mod already showed it for
-	 * the same hit.
+	 * an attack on that entity.
 	 */
 	public static boolean isDuplicate(final Entity entity, final ParticleOptions particle) {
 		for (Iterator<Shown> iterator = SHOWN.iterator(); iterator.hasNext(); ) {
@@ -83,16 +67,13 @@ public final class HitParticles {
 		return false;
 	}
 
-	private static boolean isConfirmedHit(final LocalPlayer player, final Entity entity, final DamageSource source) {
-		return entity.getId() == attackedEntityId
-				&& tick - attackTick <= CONFIRMATION_TICKS
-				&& source.is(DamageTypes.PLAYER_ATTACK)
-				&& isPlayer(source.getEntity(), player)
-				&& isPlayer(source.getDirectEntity(), player);
-	}
-
-	private static boolean isPlayer(final @Nullable Entity entity, final LocalPlayer player) {
-		return entity != null && entity.getId() == player.getId();
+	/** The checks vanilla's {@code Player.attack} makes before hurting a target, as far as the client knows them. */
+	private static boolean canHit(final Player player, final Entity target) {
+		return target instanceof LivingEntity living
+				&& living.isAlive()
+				&& target.isAttackable()
+				&& !target.skipAttackInteraction(player)
+				&& !player.isSpectator();
 	}
 
 	private static void show(final Minecraft minecraft, final Entity entity, final ParticleOptions particle) {

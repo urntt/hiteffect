@@ -12,10 +12,26 @@ public final class SettingKeys {
 	public static final String ONECONFIG_MISSING = PREFIX + "mode.oneconfig.missing";
 	public static final String OPEN_ONECONFIG = PREFIX + "open_oneconfig";
 
-	public static final String HURT_FLASH = PREFIX + "hurt_flash";
-	public static final String ARMOR_FLASH = PREFIX + "armor_flash";
+	public static final String EQUIPMENT_FLASH = PREFIX + "equipment_flash";
 	public static final String ITEM_FLASH = PREFIX + "item_flash";
-	public static final String FIRST_PERSON_ARM_FLASH = PREFIX + "first_person_arm_flash";
+	public static final String FIRST_PERSON_FLASH = PREFIX + "first_person_flash";
+
+	/** Prefix of the keys of the {@link FlashPart}s; the rest of each key is the part's id in the config file. */
+	public static final String FLASH_PART_PREFIX = PREFIX + "flash.";
+	public static final String FLASH_ARMOR = FLASH_PART_PREFIX + "armor";
+	public static final String FLASH_ELYTRA = FLASH_PART_PREFIX + "elytra";
+	public static final String FLASH_HORSE_ARMOR = FLASH_PART_PREFIX + "horse_armor";
+	public static final String FLASH_WOLF_ARMOR = FLASH_PART_PREFIX + "wolf_armor";
+	public static final String FLASH_SADDLES = FLASH_PART_PREFIX + "saddles";
+	public static final String FLASH_OTHER_EQUIPMENT = FLASH_PART_PREFIX + "other_equipment";
+	public static final String FLASH_HELD_ITEMS = FLASH_PART_PREFIX + "held_items";
+	public static final String FLASH_HEAD_ITEMS = FLASH_PART_PREFIX + "head_items";
+	public static final String FLASH_VILLAGER_ITEMS = FLASH_PART_PREFIX + "villager_items";
+	public static final String FLASH_FOX_ITEMS = FLASH_PART_PREFIX + "fox_items";
+	public static final String FLASH_PANDA_ITEMS = FLASH_PART_PREFIX + "panda_items";
+	public static final String FLASH_DOLPHIN_ITEMS = FLASH_PART_PREFIX + "dolphin_items";
+	public static final String FLASH_ENDERMAN_BLOCKS = FLASH_PART_PREFIX + "enderman_blocks";
+	public static final String FLASH_FIRST_PERSON_ARM = FLASH_PART_PREFIX + "first_person_arm";
 
 	public static final String HURT_COLOR = PREFIX + "hurt_color";
 	public static final String HURT_COLOR_HEX = PREFIX + "hurt_color.hex";

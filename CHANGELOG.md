@@ -8,11 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Armor and other equipment (elytra, horse and wolf armor, saddles) flash together with hurt entities.
-- Items that entities hold or wear on their head flash together with them.
+- Equipment flashes together with hurt entities, with a toggle each for armor, elytra, horse armor, wolf armor, saddles and other equipment.
+- Items flash together with hurt entities, with a toggle each for held items, items worn on the head, and the items of villagers, foxes, pandas, dolphins and endermen.
 - The first-person arm flashes while the player is hurt.
 - Configurable hurt flash color and strength, with a hex input, RGB sliders, presets and a rainbow mode.
-- Sharpness particles on every melee hit of the player, whatever the held item.
-- Optional crit particles on every melee hit of the player.
+- Sharpness particles the moment the player attacks, whatever the held item.
+- Optional crit particles the moment the player attacks.
 - Settings screen with a mode button (disabled, custom, OneConfig), opened from Mod Menu or an unbound key binding.
 - Optional OneConfig integration that manages the settings in OneConfig mode.

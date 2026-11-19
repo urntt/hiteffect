@@ -8,6 +8,8 @@ import com.urntt.hiteffect.compat.OneConfigBridge;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Mth;
 import org.slf4j.Logger;
@@ -81,32 +83,12 @@ public final class HitEffectConfig implements EffectSettings {
 	}
 
 	@Override
-	public boolean armorFlash() {
-		return this.settings.armorFlash;
+	public boolean flashes(final FlashPart part) {
+		return this.settings.flash.getOrDefault(part.id(), EffectValues.DEFAULTS.flashes(part));
 	}
 
-	public void setArmorFlash(final boolean armorFlash) {
-		this.settings.armorFlash = armorFlash;
-		this.save();
-	}
-
-	@Override
-	public boolean itemFlash() {
-		return this.settings.itemFlash;
-	}
-
-	public void setItemFlash(final boolean itemFlash) {
-		this.settings.itemFlash = itemFlash;
-		this.save();
-	}
-
-	@Override
-	public boolean firstPersonArmFlash() {
-		return this.settings.firstPersonArmFlash;
-	}
-
-	public void setFirstPersonArmFlash(final boolean firstPersonArmFlash) {
-		this.settings.firstPersonArmFlash = firstPersonArmFlash;
+	public void setFlashes(final FlashPart part, final boolean flashes) {
+		this.settings.flash.put(part.id(), flashes);
 		this.save();
 	}
 
@@ -174,20 +156,36 @@ public final class HitEffectConfig implements EffectSettings {
 	 */
 	private static final class Settings {
 		private ConfigMode mode = ConfigMode.CUSTOM;
-		private boolean armorFlash = EffectValues.DEFAULTS.armorFlash();
-		private boolean itemFlash = EffectValues.DEFAULTS.itemFlash();
-		private boolean firstPersonArmFlash = EffectValues.DEFAULTS.firstPersonArmFlash();
+		/** Whether each {@link FlashPart} flashes, by its id. */
+		private Map<String, Boolean> flash = defaultFlash();
 		private int hurtColor = EffectValues.DEFAULTS.hurtColor();
 		private int hurtStrength = EffectValues.DEFAULTS.hurtStrength();
 		private boolean rainbow = EffectValues.DEFAULTS.rainbow();
 		private boolean sharpnessParticles = EffectValues.DEFAULTS.sharpnessParticles();
 		private boolean critParticles = EffectValues.DEFAULTS.critParticles();
 
-		/** Replaces values a hand-edited file may have put out of range. */
+		private static Map<String, Boolean> defaultFlash() {
+			Map<String, Boolean> flash = new LinkedHashMap<>();
+			for (FlashPart part : FlashPart.values()) {
+				flash.put(part.id(), EffectValues.DEFAULTS.flashes(part));
+			}
+			return flash;
+		}
+
+		/** Replaces values a hand-edited file may have put out of range, and adds parts missing from it. */
 		private Settings normalized() {
 			if (this.mode == null) {
 				this.mode = ConfigMode.CUSTOM;
 			}
+			Map<String, Boolean> flash = defaultFlash();
+			if (this.flash != null) {
+				this.flash.forEach((id, value) -> {
+					if (flash.containsKey(id) && value != null) {
+						flash.put(id, value);
+					}
+				});
+			}
+			this.flash = flash;
 			this.hurtColor &= 0xFFFFFF;
 			this.hurtStrength = Mth.clamp(this.hurtStrength, HurtColors.MIN_STRENGTH, HurtColors.MAX_STRENGTH);
 			return this;

@@ -5,14 +5,8 @@ package com.urntt.hiteffect.config;
  * the constant {@link EffectValues} sets.
  */
 public interface EffectSettings {
-	/** Whether armor and other equipment layers flash with the hurt entity. */
-	boolean armorFlash();
-
-	/** Whether held items and worn head items flash with the hurt entity. */
-	boolean itemFlash();
-
-	/** Whether the first-person arm flashes while the local player is hurt. */
-	boolean firstPersonArmFlash();
+	/** Whether {@code part} flashes with the hurt entity, or for the first-person arm, while the player is hurt. */
+	boolean flashes(FlashPart part);
 
 	/** The hurt flash color as {@code 0xRRGGBB}. Ignored while {@link #rainbow()} is on. */
 	int hurtColor();
@@ -23,9 +17,9 @@ public interface EffectSettings {
 	/** Whether the hurt flash cycles through all hues instead of using {@link #hurtColor()}. */
 	boolean rainbow();
 
-	/** Whether every melee hit of the local player shows sharpness (enchanted hit) particles. */
+	/** Whether every melee attack of the local player shows sharpness (enchanted hit) particles. */
 	boolean sharpnessParticles();
 
-	/** Whether every melee hit of the local player shows critical hit particles. */
+	/** Whether every melee attack of the local player shows critical hit particles. */
 	boolean critParticles();
 }

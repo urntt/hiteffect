@@ -19,7 +19,8 @@
 		"PlayerItemInHandLayerMixin",
 		"RenderSetupAccessor",
 		"RenderTypeAccessor",
-		"SkullBlockRendererMixin"
+		"SkullBlockRendererMixin",
+		"WolfArmorLayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -4,6 +4,7 @@ import com.urntt.hiteffect.HitEffectClient;
 import com.urntt.hiteffect.compat.OneConfigBridge;
 import com.urntt.hiteffect.config.ConfigMode;
 import com.urntt.hiteffect.config.EffectSettings;
+import com.urntt.hiteffect.config.FlashPart;
 import com.urntt.hiteffect.config.HitEffectConfig;
 import com.urntt.hiteffect.config.HurtColors;
 import com.urntt.hiteffect.config.SettingKeys;
@@ -55,11 +56,20 @@ public final class HitEffectConfigScreen extends OptionsSubScreen {
 			this.list.addBig(Button.builder(Component.translatable(SettingKeys.OPEN_ONECONFIG), button -> OneConfigBridge.openOneConfig()).build());
 		}
 
-		this.list.addHeader(Component.translatable(SettingKeys.HURT_FLASH));
-		this.list.addSmall(
-				this.toggle(SettingKeys.ARMOR_FLASH, shown.armorFlash(), editable, this.config::setArmorFlash),
-				this.toggle(SettingKeys.ITEM_FLASH, shown.itemFlash(), editable, this.config::setItemFlash));
-		this.list.addBig(this.toggle(SettingKeys.FIRST_PERSON_ARM_FLASH, shown.firstPersonArmFlash(), editable, this.config::setFirstPersonArmFlash));
+		for (FlashPart.Group group : FlashPart.Group.values()) {
+			this.list.addHeader(group.label());
+			List<AbstractWidget> toggles = new ArrayList<>();
+			for (FlashPart part : FlashPart.values()) {
+				if (part.group() == group) {
+					toggles.add(this.toggle(part.translationKey(), shown.flashes(part), editable, value -> this.config.setFlashes(part, value)));
+				}
+			}
+			if (toggles.size() == 1) {
+				this.list.addBig(toggles.getFirst());
+			} else {
+				this.list.addSmall(toggles);
+			}
+		}
 
 		this.addColorOptions(shown, editable);
 

@@ -40,18 +40,19 @@ The mod version itself follows [Semantic Versioning](https://semver.org/); the `
 
 - Client-only: `fabric.mod.json` declares `"environment": "client"`. There is no server-side component and no networking.
 - Scope is hit-related visual effects. The features are:
-  - Hurt flash on equipment: armor and every other equipment layer (elytra, horse and wolf armor, saddles) flashes together with the hurt entity. Vanilla armor render pipelines define `NO_OVERLAY`, so flashing equipment is drawn with overlay-capable copies of those pipelines, and only while the entity shows the hurt overlay.
-  - Hurt flash on held items and worn head items (carved pumpkins, skulls, blocks).
-  - Hurt flash on the first-person arm (including the sleeve) while the local player is hurt. Items held in first person do not flash.
+  - Hurt flash on equipment, with a toggle per part (`FlashPart`): armor, elytra, horse armor, wolf armor (including the cracks of damaged armor), saddles, and other equipment (llama carpets, happy ghast harnesses, nautilus armor). Vanilla armor render pipelines define `NO_OVERLAY`, so flashing equipment is drawn with overlay-capable copies of those pipelines, and only while the entity shows the hurt overlay.
+  - Hurt flash on items, with a toggle per part: held items, items worn on the head (carved pumpkins, skulls, blocks), villager and wandering trader items, fox, panda and dolphin items, and enderman blocks.
+  - Hurt flash on the first-person arm (including the sleeve) while the local player is hurt, with its own toggle. Items held in first person do not flash.
   - Hurt flash color: an RGB color and a strength (0-100 %, vanilla is 30 %), or a rainbow that cycles through hues. It is applied by rewriting the hurt rows of the global `OverlayTexture`, so it affects every entity.
-  - Sharpness (enchanted hit) particles for every melee hit of the local player, whatever the held item.
-  - Critical hit particles for every melee hit of the local player.
-- Hit particles follow only the local player's own melee attacks, and only once the server confirms the hit on the attacked entity (a `player_attack` damage event caused by the local player on the entity it attacked). Entities hit by a sweep are not included. When vanilla also spawns the same particle for that hit (for example a Sharpness sword), it is not spawned twice.
+  - Sharpness (enchanted hit) particles for every melee attack of the local player, whatever the held item.
+  - Critical hit particles for every melee attack of the local player.
+- Hit particles appear instantly on the client when the local player attacks a living entity, without waiting for the server; the mod never relies on server confirmation. They follow only the local player's own melee attacks on the attacked entity; entities hit by a sweep are not included. Vanilla shows these particles when the server's animation packet arrives; when that packet repeats a particle the mod already showed for an attack on the same entity, it is skipped, so no hit shows it twice.
+- The mod never sends packets.
 - Configuration mode, shown as the first button of the configuration screen:
   - Disabled: every feature is off and the hurt color is vanilla.
   - Custom (default): the mod's own settings apply.
   - OneConfig: the settings registered with OneConfig apply, and the mod's own settings are shown greyed out with the values OneConfig currently applies. This mode is only offered when OneConfig is installed. If the configuration file selects it but OneConfig is missing, the mod behaves as in Custom mode and keeps the saved mode until the player changes it.
-- Defaults in Custom mode: every flash feature and the sharpness particles are on, crit particles on every hit are off (they would hide real critical hits), the hurt color is vanilla red (`#FF0000`) at 30 % strength, and the rainbow is off.
+- Defaults in Custom mode: every flash toggle and the sharpness particles are on, crit particles on every hit are off (they would hide real critical hits), the hurt color is vanilla red (`#FF0000`) at 30 % strength, and the rainbow is off.
 - A key binding opens the configuration screen. It is unbound by default. Mod Menu opens the same screen.
 - Settings are saved to the configuration file immediately when changed.
 
@@ -76,7 +77,7 @@ The mod version itself follows [Semantic Versioning](https://semver.org/); the `
 
 ### Testing
 
-- The client game tests in `src/gametest` start Minecraft and check the configuration modes and screen, the open-configuration key, the hurt overlay color, the equipment, item and first-person arm flash (by counting pixels in screenshots), and the hit particles. Keep them passing and extend them when behavior changes.
+- The client game tests in `src/gametest` start Minecraft and check the configuration modes and screen, the open-configuration key, the hurt overlay color, that armor, held items, head items and the first-person arm each flash under their own toggle (by counting pixels in screenshots), and that the hit particles appear right after the attack, also on a target the server does not hurt. Keep them passing and extend them when behavior changes.
 - They run twice: without OneConfig, and with `-PoneConfigRuntime=true`, which loads OneConfig and its dependencies (Fabric Language Kotlin, Compose Multiplatform) from Modrinth's Maven into the development client. Their Modrinth version ids live in `gradle.properties` next to `oneconfig_version`; update them together. The run with OneConfig checks the OneConfig mode and skips the in-world effect checks, because OneConfig's notifications cover parts of the screenshots.
 - OneConfig stores its settings in the same config directory as the mod's own `hiteffect.json` and watches its files, so its config file must keep a different name (`hiteffect-oneconfig.json`).
 - After porting to a new Minecraft version, run the client game tests. A successful build does not prove that the mixins still have the intended effect.

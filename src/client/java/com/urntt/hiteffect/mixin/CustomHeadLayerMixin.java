@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.urntt.hiteffect.config.FlashPart;
 import com.urntt.hiteffect.effect.HurtFlash;
 import net.minecraft.client.model.object.skull.SkullModelBase;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -25,7 +26,7 @@ public abstract class CustomHeadLayerMixin {
 
 	@ModifyExpressionValue(method = SUBMIT, at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/texture/OverlayTexture;NO_OVERLAY:I"))
 	private int hiteffect$flashWithEntity(final int overlayCoords, @Local(argsOnly = true) final LivingEntityRenderState state) {
-		return HurtFlash.itemOverlay(overlayCoords, state);
+		return HurtFlash.itemOverlay(overlayCoords, state, FlashPart.HEAD_ITEMS);
 	}
 
 	@WrapOperation(

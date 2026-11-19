@@ -8,6 +8,7 @@ import com.urntt.hiteffect.HitEffectClient;
 import com.urntt.hiteffect.compat.OneConfigBridge;
 import com.urntt.hiteffect.config.ConfigMode;
 import com.urntt.hiteffect.config.EffectValues;
+import com.urntt.hiteffect.config.FlashPart;
 import com.urntt.hiteffect.config.HitEffectConfig;
 import com.urntt.hiteffect.config.HurtColors;
 import com.urntt.hiteffect.effect.HurtOverlayColor;
@@ -15,6 +16,7 @@ import com.urntt.hiteffect.gui.HitEffectConfigScreen;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -47,6 +49,9 @@ public final class EffectsGameTest implements FabricClientGameTest {
 
 	/** A flashing part must add at least this share of the screenshot's pixels in the hurt color. */
 	private static final double MIN_FLASH_GAIN = 0.005;
+
+	/** The same for the held sword, which covers far fewer pixels than armor or a carved pumpkin. */
+	private static final double MIN_HELD_ITEM_FLASH_GAIN = 0.001;
 
 	/** Ticks to wait until the target can be hurt again and the player's attack is fully charged. */
 	private static final int ATTACK_COOLDOWN_TICKS = 30;
@@ -137,7 +142,7 @@ public final class EffectsGameTest implements FabricClientGameTest {
 
 	/**
 	 * Freezes a hurt zombie that wears armor and a carved pumpkin and holds a sword, then counts the pixels of the
-	 * hurt color with each flash setting.
+	 * hurt color with each of these parts flashing on its own.
 	 */
 	private static void checkEquipmentAndItemFlash(final ClientGameTestContext context, final TestServerContext server) {
 		Vec3 player = facePositiveZ(context, server, 0);
@@ -152,28 +157,36 @@ public final class EffectsGameTest implements FabricClientGameTest {
 		server.runCommand("damage " + ZOMBIE_SELECTOR + " 1");
 		context.waitFor(client -> zombie(client).hurtTime > 0);
 
-		int none = flashPixels(context, "hiteffect-flash-none", false, false);
-		int armor = flashPixels(context, "hiteffect-flash-armor", true, false);
-		int items = flashPixels(context, "hiteffect-flash-items", false, true);
-		int both = flashPixels(context, "hiteffect-flash-armor-items", true, true);
-		LOGGER.info("Hurt color pixels: body only {}, with armor {}, with items {}, with both {}", none, armor, items, both);
+		int none = flashPixels(context, "hiteffect-flash-none");
+		int armor = flashPixels(context, "hiteffect-flash-armor", FlashPart.ARMOR);
+		int held = flashPixels(context, "hiteffect-flash-held-items", FlashPart.HELD_ITEMS);
+		int head = flashPixels(context, "hiteffect-flash-head-items", FlashPart.HEAD_ITEMS);
+		int all = flashPixels(context, "hiteffect-flash-all", FlashPart.values());
+		LOGGER.info("Hurt color pixels: body only {}, with armor {}, with held items {}, with head items {}, with all parts {}",
+				none, armor, held, head, all);
 
-		int minGain = minFlashGain(context);
-		check(armor - none >= minGain, "armor should flash: " + none + " -> " + armor + " pixels, expected a gain of " + minGain);
-		check(items - none >= minGain, "held and worn items should flash: " + none + " -> " + items + " pixels, expected a gain of " + minGain);
-		check(both - armor >= minGain && both - items >= minGain, "armor and items should flash together: " + both + " pixels");
+		int minGain = minFlashGain(context, MIN_FLASH_GAIN);
+		int minItemGain = minFlashGain(context, MIN_HELD_ITEM_FLASH_GAIN);
+		check(armor - none >= minGain, "armor should flash on its own: " + none + " -> " + armor + " pixels, expected a gain of " + minGain);
+		check(head - none >= minGain, "the carved pumpkin should flash on its own: " + none + " -> " + head + " pixels, expected a gain of " + minGain);
+		check(held - none >= minItemGain, "the held sword should flash on its own: " + none + " -> " + held + " pixels, expected a gain of " + minItemGain);
+		check(all - armor >= minItemGain && all - head >= minItemGain && all - held >= minGain,
+				"armor and items should flash together: " + all + " pixels");
 
 		server.runCommand("tick unfreeze");
 		server.runCommand("kill " + ZOMBIE_SELECTOR);
 		context.waitFor(client -> zombie(client) == null);
 	}
 
-	private static int flashPixels(final ClientGameTestContext context, final String name, final boolean armor, final boolean items) {
+	/** Takes a screenshot with only {@code parts} flashing and counts the pixels of the hurt color. */
+	private static int flashPixels(final ClientGameTestContext context, final String name, final FlashPart... parts) {
+		Set<FlashPart> flashing = Set.of(parts);
 		configure(context, c -> {
 			c.setHurtColor(FLASH_TEST_COLOR);
 			c.setHurtStrength(HurtColors.MAX_STRENGTH);
-			c.setArmorFlash(armor);
-			c.setItemFlash(items);
+			for (FlashPart part : FlashPart.values()) {
+				c.setFlashes(part, flashing.contains(part));
+			}
 		});
 		Path screenshot = context.takeScreenshot(name);
 		return countFlashPixels(screenshot, 0, 0, 1, 1);
@@ -190,14 +203,14 @@ public final class EffectsGameTest implements FabricClientGameTest {
 		int on = armPixels(context, server, "hiteffect-arm-flash-on", true);
 		int off = armPixels(context, server, "hiteffect-arm-flash-off", false);
 		LOGGER.info("Hurt color pixels in the first-person arm area: flash on {}, flash off {}", on, off);
-		check(on - off >= minFlashGain(context), "the first-person arm should flash: " + off + " -> " + on + " pixels");
+		check(on - off >= minFlashGain(context, MIN_FLASH_GAIN), "the first-person arm should flash: " + off + " -> " + on + " pixels");
 	}
 
 	private static int armPixels(final ClientGameTestContext context, final TestServerContext server, final String name, final boolean flash) {
 		configure(context, c -> {
 			c.setHurtColor(FLASH_TEST_COLOR);
 			c.setHurtStrength(HurtColors.MAX_STRENGTH);
-			c.setFirstPersonArmFlash(flash);
+			c.setFlashes(FlashPart.FIRST_PERSON_ARM, flash);
 		});
 		context.waitFor(client -> client.player.hurtTime == 0 && client.player.getInvulnerableTime() == 0);
 		context.waitTicks(ATTACK_COOLDOWN_TICKS);
@@ -209,8 +222,8 @@ public final class EffectsGameTest implements FabricClientGameTest {
 	}
 
 	/**
-	 * Hits a zombie with the attack key and counts the hit particle emitters, with the hand empty and with a Sharpness
-	 * sword, whose enchanted hit particles vanilla already shows.
+	 * Hits a zombie with the attack key and counts the hit particle emitters: with the hand empty, with a Sharpness
+	 * sword, whose enchanted hit particles vanilla already shows, and on a target the server does not hurt.
 	 */
 	private static void checkHitParticles(final ClientGameTestContext context, final TestServerContext server) {
 		server.runCommand("effect give @p minecraft:instant_health 1 10");
@@ -223,46 +236,76 @@ public final class EffectsGameTest implements FabricClientGameTest {
 		context.waitFor(client -> zombie(client) != null);
 
 		configure(context, EffectsGameTest::applyDefaults);
-		checkHit(context, "empty hand, defaults", 1, 0);
+		checkHit(context, "empty hand, defaults", 1, 0, true);
 
 		configure(context, c -> c.setCritParticles(true));
-		checkHit(context, "empty hand, crit particles on", 1, 1);
+		checkHit(context, "empty hand, crit particles on", 1, 1, true);
 
 		configure(context, c -> {
 			c.setSharpnessParticles(false);
 			c.setCritParticles(false);
 		});
-		checkHit(context, "empty hand, both off", 0, 0);
+		checkHit(context, "empty hand, both off", 0, 0, true);
 
 		server.runCommand("item replace entity @p weapon.mainhand with minecraft:diamond_sword[minecraft:enchantments={\"minecraft:sharpness\":5}]");
 		context.waitFor(client -> !client.player.getMainHandItem().isEmpty());
 
+		// Vanilla's own sharpness particle needs the server, so it only appears after the round trip.
 		configure(context, c -> c.setMode(ConfigMode.DISABLED));
-		checkHit(context, "Sharpness sword, disabled", 1, 0);
+		checkHit(context, "Sharpness sword, disabled", 1, 0, true);
 
 		configure(context, c -> {
 			c.setMode(ConfigMode.CUSTOM);
 			applyDefaults(c);
 		});
-		checkHit(context, "Sharpness sword, defaults", 1, 0);
+		checkHit(context, "Sharpness sword, defaults", 1, 0, true);
 
+		// The server ignores attacks on an invulnerable zombie, so any particle can only come from the client.
 		server.runCommand("item replace entity @p weapon.mainhand with minecraft:air");
+		server.runCommand("data merge entity " + ZOMBIE_SELECTOR + " {Invulnerable:1b}");
+		context.waitTicks(PACKET_SETTLE_TICKS);
+		checkHit(context, "empty hand, target the server does not hurt", 1, 0, false);
+
 		server.runCommand("kill " + ZOMBIE_SELECTOR);
 	}
 
-	private static void checkHit(final ClientGameTestContext context, final String situation, final int expectedSharpness, final int expectedCrit) {
+	/**
+	 * Attacks the zombie with the attack key and counts the hit particle emitters right after the attack and once the
+	 * server's answer has arrived.
+	 *
+	 * @param serverHurts whether the server hurts the zombie, which the check then waits for
+	 */
+	private static void checkHit(
+			final ClientGameTestContext context,
+			final String situation,
+			final int expectedSharpness,
+			final int expectedCrit,
+			final boolean serverHurts) {
 		context.waitTicks(ATTACK_COOLDOWN_TICKS);
 		context.waitFor(client -> zombie(client).hurtTime == 0);
+		boolean modShowsParticles = context.computeOnClient(client -> HitEffectClient.config().effectiveMode() == ConfigMode.CUSTOM);
 		ParticleCounter.reset();
 		context.getInput().pressKey(options -> options.keyAttack);
-		context.waitFor(client -> zombie(client).hurtTime > 0);
-		context.waitTicks(PACKET_SETTLE_TICKS);
+		int instantSharpness = ParticleCounter.count(ParticleTypes.ENCHANTED_HIT);
+		int instantCrit = ParticleCounter.count(ParticleTypes.CRIT);
 
+		if (serverHurts) {
+			context.waitFor(client -> zombie(client).hurtTime > 0);
+		}
+		context.waitTicks(PACKET_SETTLE_TICKS);
 		int sharpness = ParticleCounter.count(ParticleTypes.ENCHANTED_HIT);
 		int crit = ParticleCounter.count(ParticleTypes.CRIT);
-		LOGGER.info("Hit particles ({}): sharpness {}, crit {}", situation, sharpness, crit);
+		boolean hurt = context.computeOnClient(client -> zombie(client).hurtTime > 0);
+		LOGGER.info("Hit particles ({}): right after the attack sharpness {}, crit {}; after the server answered sharpness {}, crit {}",
+				situation, instantSharpness, instantCrit, sharpness, crit);
+
+		check(hurt == serverHurts, situation + ": the server should " + (serverHurts ? "" : "not ") + "hurt the zombie");
 		check(sharpness == expectedSharpness && crit == expectedCrit,
 				situation + ": expected " + expectedSharpness + " sharpness and " + expectedCrit + " crit emitters, got " + sharpness + " and " + crit);
+		if (modShowsParticles) {
+			check(instantSharpness == expectedSharpness && instantCrit == expectedCrit,
+					situation + ": the particles should appear right after the attack, got " + instantSharpness + " sharpness and " + instantCrit + " crit emitters");
+		}
 	}
 
 	/** Turns the player to face south (+Z) with the given pitch and returns its position. */
@@ -286,8 +329,9 @@ public final class EffectsGameTest implements FabricClientGameTest {
 		return context.computeOnClient(HurtOverlayColor::currentArgb);
 	}
 
-	private static int minFlashGain(final ClientGameTestContext context) {
-		return context.computeOnClient(client -> (int) (client.getWindow().getWidth() * client.getWindow().getHeight() * MIN_FLASH_GAIN));
+	/** The given share of the screenshot's pixels. */
+	private static int minFlashGain(final ClientGameTestContext context, final double share) {
+		return context.computeOnClient(client -> (int) (client.getWindow().getWidth() * client.getWindow().getHeight() * share));
 	}
 
 	/** Changes the settings on the client thread and waits until the effects have picked them up. */
@@ -298,9 +342,9 @@ public final class EffectsGameTest implements FabricClientGameTest {
 
 	private static void applyDefaults(final HitEffectConfig config) {
 		EffectValues defaults = EffectValues.DEFAULTS;
-		config.setArmorFlash(defaults.armorFlash());
-		config.setItemFlash(defaults.itemFlash());
-		config.setFirstPersonArmFlash(defaults.firstPersonArmFlash());
+		for (FlashPart part : FlashPart.values()) {
+			config.setFlashes(part, defaults.flashes(part));
+		}
 		config.setHurtColor(defaults.hurtColor());
 		config.setHurtStrength(defaults.hurtStrength());
 		config.setRainbow(defaults.rainbow());

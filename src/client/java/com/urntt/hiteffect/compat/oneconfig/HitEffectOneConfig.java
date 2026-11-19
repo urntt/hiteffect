@@ -3,6 +3,7 @@ package com.urntt.hiteffect.compat.oneconfig;
 import com.urntt.hiteffect.HitEffectClient;
 import com.urntt.hiteffect.config.EffectSettings;
 import com.urntt.hiteffect.config.EffectValues;
+import com.urntt.hiteffect.config.FlashPart;
 import com.urntt.hiteffect.config.HurtColors;
 import com.urntt.hiteffect.config.SettingKeys;
 import org.polyfrost.compose.render.PolyColor;
@@ -30,28 +31,116 @@ public final class HitEffectOneConfig extends Config implements EffectSettings {
 	public boolean enabled = true;
 
 	@Switch(
-			title = SettingKeys.ARMOR_FLASH,
-			titleKey = SettingKeys.ARMOR_FLASH,
-			descriptionKey = SettingKeys.ARMOR_FLASH + SettingKeys.DESCRIPTION,
-			subcategory = SettingKeys.HURT_FLASH,
-			subcategoryKey = SettingKeys.HURT_FLASH)
-	public boolean armorFlash = EffectValues.DEFAULTS.armorFlash();
+			title = SettingKeys.FLASH_ARMOR,
+			titleKey = SettingKeys.FLASH_ARMOR,
+			descriptionKey = SettingKeys.FLASH_ARMOR + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.EQUIPMENT_FLASH,
+			subcategoryKey = SettingKeys.EQUIPMENT_FLASH)
+	public boolean armorFlash = EffectValues.DEFAULTS.flashes(FlashPart.ARMOR);
 
 	@Switch(
-			title = SettingKeys.ITEM_FLASH,
-			titleKey = SettingKeys.ITEM_FLASH,
-			descriptionKey = SettingKeys.ITEM_FLASH + SettingKeys.DESCRIPTION,
-			subcategory = SettingKeys.HURT_FLASH,
-			subcategoryKey = SettingKeys.HURT_FLASH)
-	public boolean itemFlash = EffectValues.DEFAULTS.itemFlash();
+			title = SettingKeys.FLASH_ELYTRA,
+			titleKey = SettingKeys.FLASH_ELYTRA,
+			descriptionKey = SettingKeys.FLASH_ELYTRA + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.EQUIPMENT_FLASH,
+			subcategoryKey = SettingKeys.EQUIPMENT_FLASH)
+	public boolean elytraFlash = EffectValues.DEFAULTS.flashes(FlashPart.ELYTRA);
 
 	@Switch(
-			title = SettingKeys.FIRST_PERSON_ARM_FLASH,
-			titleKey = SettingKeys.FIRST_PERSON_ARM_FLASH,
-			descriptionKey = SettingKeys.FIRST_PERSON_ARM_FLASH + SettingKeys.DESCRIPTION,
-			subcategory = SettingKeys.HURT_FLASH,
-			subcategoryKey = SettingKeys.HURT_FLASH)
-	public boolean firstPersonArmFlash = EffectValues.DEFAULTS.firstPersonArmFlash();
+			title = SettingKeys.FLASH_HORSE_ARMOR,
+			titleKey = SettingKeys.FLASH_HORSE_ARMOR,
+			descriptionKey = SettingKeys.FLASH_HORSE_ARMOR + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.EQUIPMENT_FLASH,
+			subcategoryKey = SettingKeys.EQUIPMENT_FLASH)
+	public boolean horseArmorFlash = EffectValues.DEFAULTS.flashes(FlashPart.HORSE_ARMOR);
+
+	@Switch(
+			title = SettingKeys.FLASH_WOLF_ARMOR,
+			titleKey = SettingKeys.FLASH_WOLF_ARMOR,
+			descriptionKey = SettingKeys.FLASH_WOLF_ARMOR + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.EQUIPMENT_FLASH,
+			subcategoryKey = SettingKeys.EQUIPMENT_FLASH)
+	public boolean wolfArmorFlash = EffectValues.DEFAULTS.flashes(FlashPart.WOLF_ARMOR);
+
+	@Switch(
+			title = SettingKeys.FLASH_SADDLES,
+			titleKey = SettingKeys.FLASH_SADDLES,
+			descriptionKey = SettingKeys.FLASH_SADDLES + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.EQUIPMENT_FLASH,
+			subcategoryKey = SettingKeys.EQUIPMENT_FLASH)
+	public boolean saddlesFlash = EffectValues.DEFAULTS.flashes(FlashPart.SADDLES);
+
+	@Switch(
+			title = SettingKeys.FLASH_OTHER_EQUIPMENT,
+			titleKey = SettingKeys.FLASH_OTHER_EQUIPMENT,
+			descriptionKey = SettingKeys.FLASH_OTHER_EQUIPMENT + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.EQUIPMENT_FLASH,
+			subcategoryKey = SettingKeys.EQUIPMENT_FLASH)
+	public boolean otherEquipmentFlash = EffectValues.DEFAULTS.flashes(FlashPart.OTHER_EQUIPMENT);
+
+	@Switch(
+			title = SettingKeys.FLASH_HELD_ITEMS,
+			titleKey = SettingKeys.FLASH_HELD_ITEMS,
+			descriptionKey = SettingKeys.FLASH_HELD_ITEMS + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.ITEM_FLASH,
+			subcategoryKey = SettingKeys.ITEM_FLASH)
+	public boolean heldItemsFlash = EffectValues.DEFAULTS.flashes(FlashPart.HELD_ITEMS);
+
+	@Switch(
+			title = SettingKeys.FLASH_HEAD_ITEMS,
+			titleKey = SettingKeys.FLASH_HEAD_ITEMS,
+			descriptionKey = SettingKeys.FLASH_HEAD_ITEMS + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.ITEM_FLASH,
+			subcategoryKey = SettingKeys.ITEM_FLASH)
+	public boolean headItemsFlash = EffectValues.DEFAULTS.flashes(FlashPart.HEAD_ITEMS);
+
+	@Switch(
+			title = SettingKeys.FLASH_VILLAGER_ITEMS,
+			titleKey = SettingKeys.FLASH_VILLAGER_ITEMS,
+			descriptionKey = SettingKeys.FLASH_VILLAGER_ITEMS + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.ITEM_FLASH,
+			subcategoryKey = SettingKeys.ITEM_FLASH)
+	public boolean villagerItemsFlash = EffectValues.DEFAULTS.flashes(FlashPart.VILLAGER_ITEMS);
+
+	@Switch(
+			title = SettingKeys.FLASH_FOX_ITEMS,
+			titleKey = SettingKeys.FLASH_FOX_ITEMS,
+			descriptionKey = SettingKeys.FLASH_FOX_ITEMS + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.ITEM_FLASH,
+			subcategoryKey = SettingKeys.ITEM_FLASH)
+	public boolean foxItemsFlash = EffectValues.DEFAULTS.flashes(FlashPart.FOX_ITEMS);
+
+	@Switch(
+			title = SettingKeys.FLASH_PANDA_ITEMS,
+			titleKey = SettingKeys.FLASH_PANDA_ITEMS,
+			descriptionKey = SettingKeys.FLASH_PANDA_ITEMS + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.ITEM_FLASH,
+			subcategoryKey = SettingKeys.ITEM_FLASH)
+	public boolean pandaItemsFlash = EffectValues.DEFAULTS.flashes(FlashPart.PANDA_ITEMS);
+
+	@Switch(
+			title = SettingKeys.FLASH_DOLPHIN_ITEMS,
+			titleKey = SettingKeys.FLASH_DOLPHIN_ITEMS,
+			descriptionKey = SettingKeys.FLASH_DOLPHIN_ITEMS + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.ITEM_FLASH,
+			subcategoryKey = SettingKeys.ITEM_FLASH)
+	public boolean dolphinItemsFlash = EffectValues.DEFAULTS.flashes(FlashPart.DOLPHIN_ITEMS);
+
+	@Switch(
+			title = SettingKeys.FLASH_ENDERMAN_BLOCKS,
+			titleKey = SettingKeys.FLASH_ENDERMAN_BLOCKS,
+			descriptionKey = SettingKeys.FLASH_ENDERMAN_BLOCKS + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.ITEM_FLASH,
+			subcategoryKey = SettingKeys.ITEM_FLASH)
+	public boolean endermanBlocksFlash = EffectValues.DEFAULTS.flashes(FlashPart.ENDERMAN_BLOCKS);
+
+	@Switch(
+			title = SettingKeys.FLASH_FIRST_PERSON_ARM,
+			titleKey = SettingKeys.FLASH_FIRST_PERSON_ARM,
+			descriptionKey = SettingKeys.FLASH_FIRST_PERSON_ARM + SettingKeys.DESCRIPTION,
+			subcategory = SettingKeys.FIRST_PERSON_FLASH,
+			subcategoryKey = SettingKeys.FIRST_PERSON_FLASH)
+	public boolean firstPersonArmFlash = EffectValues.DEFAULTS.flashes(FlashPart.FIRST_PERSON_ARM);
 
 	@Color(
 			title = SettingKeys.HURT_COLOR,
@@ -99,18 +188,23 @@ public final class HitEffectOneConfig extends Config implements EffectSettings {
 	}
 
 	@Override
-	public boolean armorFlash() {
-		return this.armorFlash;
-	}
-
-	@Override
-	public boolean itemFlash() {
-		return this.itemFlash;
-	}
-
-	@Override
-	public boolean firstPersonArmFlash() {
-		return this.firstPersonArmFlash;
+	public boolean flashes(final FlashPart part) {
+		return switch (part) {
+			case ARMOR -> this.armorFlash;
+			case ELYTRA -> this.elytraFlash;
+			case HORSE_ARMOR -> this.horseArmorFlash;
+			case WOLF_ARMOR -> this.wolfArmorFlash;
+			case SADDLES -> this.saddlesFlash;
+			case OTHER_EQUIPMENT -> this.otherEquipmentFlash;
+			case HELD_ITEMS -> this.heldItemsFlash;
+			case HEAD_ITEMS -> this.headItemsFlash;
+			case VILLAGER_ITEMS -> this.villagerItemsFlash;
+			case FOX_ITEMS -> this.foxItemsFlash;
+			case PANDA_ITEMS -> this.pandaItemsFlash;
+			case DOLPHIN_ITEMS -> this.dolphinItemsFlash;
+			case ENDERMAN_BLOCKS -> this.endermanBlocksFlash;
+			case FIRST_PERSON_ARM -> this.firstPersonArmFlash;
+		};
 	}
 
 	@Override
