@@ -1,0 +1,55 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="none"/>
+  <g transform="translate(0 50)">
+    <!-- hair clip: unchanged -->
+    <g transform="translate(600 120) rotate(20 130 58) scale(1.5)">
+    <path d="M28 57
+             C28 49, 28 42, 29 36
+             C31 27, 39 23, 48 27
+             C67 35, 89 43, 105 50
+             C115 54, 115 58, 105 62
+             C89 69, 67 78, 48 86
+             C39 90, 31 86, 29 77
+             C28 70, 28 64, 28 57
+             Z"
+          fill="#ff4fa0"/>
+    <path d="M104 16 L104 69
+             C104 108, 156 108, 156 69
+             L156 16"
+          fill="none"
+          stroke="#ff4fa0"
+          stroke-width="22"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+    <path d="M232 57
+             C232 49, 232 42, 231 36
+             C229 27, 221 23, 212 27
+             C193 35, 171 43, 155 50
+             C145 54, 145 58, 155 62
+             C171 69, 193 78, 212 86
+             C221 90, 229 86, 231 77
+             C232 70, 232 64, 232 57
+             Z"
+          fill="#ff4fa0"/>
+    </g>
+
+    <!-- hit burst -->
+    <path d="M511 285 L557 428 L657 385 L624 487 L759 512 L637 571 L689 650 L595 644 L600 768
+             L513 675 L438 748 L430 646 L304 676 L386 574 L307 518 L397 489 L347 377 L463 428
+             Z"
+          fill="none"
+          stroke="#ff4fa0"
+          stroke-width="50"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+    <!-- hit sparkle -->
+    <path d="M511 455
+             Q527 531, 603 547
+             Q527 563, 511 639
+             Q495 563, 419 547
+             Q495 531, 511 455
+             Z"
+          fill="#ff4fa0"/>
+  </g>
+</svg>

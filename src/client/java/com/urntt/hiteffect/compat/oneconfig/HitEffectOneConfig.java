@@ -26,6 +26,9 @@ public final class HitEffectOneConfig extends Config implements EffectSettings {
 	 */
 	private static final String FILE_NAME = HitEffectClient.MOD_ID + "-oneconfig.json";
 
+	/** The mod icon, as named in {@code fabric.mod.json}, as a resource path for OneConfig's mod card. */
+	private static final String ICON_PATH = "/assets/" + HitEffectClient.MOD_ID + "/icon.png";
+
 	/** The toggle on the mod's OneConfig card. While it is off, every effect is off. */
 	@MasterToggle
 	public boolean enabled = true;
@@ -179,7 +182,7 @@ public final class HitEffectOneConfig extends Config implements EffectSettings {
 	public boolean critParticles = EffectValues.DEFAULTS.critParticles();
 
 	public HitEffectOneConfig() {
-		super(FILE_NAME, HitEffectClient.MOD_ID, Category.VISUALS);
+		super(FILE_NAME, ICON_PATH, HitEffectClient.MOD_ID, Category.VISUALS);
 	}
 
 	/** The settings that apply in OneConfig mode, which are all off while the card's toggle is off. */

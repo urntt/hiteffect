@@ -13,6 +13,7 @@
 		"issues": "https://github.com/urntt/hiteffect/issues"
 	},
 	"license": "MIT",
+	"icon": "assets/hiteffect/icon.png",
 	"environment": "client",
 	"entrypoints": {
 		"client": [

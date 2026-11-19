@@ -72,7 +72,8 @@ The mod version itself follows [Semantic Versioning](https://semver.org/); the `
 ### Implementation
 
 - Language: Java only.
-- Source sets: `src/main` holds only `fabric.mod.json`. All code and client resources live in `src/client`, and the client game tests live in `src/gametest`.
+- Source sets: `src/main` holds only `fabric.mod.json` and the icon. All code and client resources live in `src/client`, and the client game tests live in `src/gametest`.
+- The icon's source is `art/icon.svg`. `src/main/resources/assets/hiteffect/icon.png` is rendered from it at 512 x 512 pixels with a transparent background; render it again whenever the SVG changes.
 - Mixins: prefer the MixinExtras injectors bundled with Fabric Loader (for example `@ModifyExpressionValue` and `@WrapOperation`) over `@Redirect` and `@Overwrite`, to stay compatible with other mods and keep porting work small. Every mixin reads the effective settings, so Disabled mode keeps vanilla behavior.
 
 ### Testing

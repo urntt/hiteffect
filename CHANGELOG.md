@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.0+26.3] - 2026-11-19
+
 ### Added
 
 - Equipment flashes together with hurt entities, with a toggle each for armor, elytra, horse armor, wolf armor, saddles and other equipment.
@@ -16,3 +18,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Optional crit particles the moment the player attacks.
 - Settings screen with a mode button (disabled, custom, OneConfig), opened from Mod Menu or an unbound key binding.
 - Optional OneConfig integration that manages the settings in OneConfig mode.
+- Mod icon.
