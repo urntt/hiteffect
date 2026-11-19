@@ -19,7 +19,8 @@ public final class OneConfigIntegration implements ConfigEntrypoint {
 		// The mod's own screen holds the mode button, so OneConfig links to it.
 		context.originalScreen(() -> HitEffectConfigScreen.open(Minecraft.getInstance()));
 
-		OneConfigDestination destination = new OneConfigDestination.ModConfig(new ModConfigTarget(context.modId(), null));
-		OneConfigBridge.register(config::applied, () -> OneConfigUI.open(destination));
+		// OneConfig identifies a mod's page by its config tree, whose id comes from the config file name.
+		OneConfigBridge.register(config::applied, () -> OneConfigUI.open(
+				new OneConfigDestination.ModConfig(new ModConfigTarget(config.getTree().getID(), null))));
 	}
 }

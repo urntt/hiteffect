@@ -19,6 +19,12 @@ import org.polyfrost.oneconfig.api.config.v1.annotations.Switch;
 public final class HitEffectOneConfig extends Config implements EffectSettings {
 	private static final int OPAQUE = 0xFF000000;
 
+	/**
+	 * OneConfig keeps its files in the same config directory as the mod's own {@code hiteffect.json} and watches them
+	 * for changes, so its file needs a name of its own.
+	 */
+	private static final String FILE_NAME = HitEffectClient.MOD_ID + "-oneconfig.json";
+
 	/** The toggle on the mod's OneConfig card. While it is off, every effect is off. */
 	@MasterToggle
 	public boolean enabled = true;
@@ -84,7 +90,7 @@ public final class HitEffectOneConfig extends Config implements EffectSettings {
 	public boolean critParticles = EffectValues.DEFAULTS.critParticles();
 
 	public HitEffectOneConfig() {
-		super(HitEffectClient.MOD_ID + ".json", HitEffectClient.MOD_ID, Category.VISUALS);
+		super(FILE_NAME, HitEffectClient.MOD_ID, Category.VISUALS);
 	}
 
 	/** The settings that apply in OneConfig mode, which are all off while the card's toggle is off. */
