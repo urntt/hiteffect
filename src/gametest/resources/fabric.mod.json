@@ -1,0 +1,19 @@
+{
+	"schemaVersion": 1,
+	"id": "hiteffect-gametest",
+	"version": "0.0.0",
+	"name": "hiteffect game tests",
+	"environment": "client",
+	"entrypoints": {
+		"fabric-client-gametest": [
+			"com.urntt.hiteffect.gametest.ConfigScreenGameTest",
+			"com.urntt.hiteffect.gametest.EffectsGameTest"
+		]
+	},
+	"mixins": [
+		"hiteffect-gametest.mixins.json"
+	],
+	"depends": {
+		"hiteffect": "*"
+	}
+}

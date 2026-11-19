@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "com.urntt.hiteffect.gametest.mixin",
+	"compatibilityLevel": "JAVA_${java_version}",
+	"client": [
+		"ParticleEngineMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
