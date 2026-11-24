@@ -33,12 +33,12 @@ The button at the top of the screen selects the mode:
 | Mode | Effect |
 | --- | --- |
 | Disabled | Every effect is off, and everything looks vanilla. |
-| Custom (default) | The settings on this screen apply. |
-| OneConfig | The settings registered with OneConfig apply, and are changed in OneConfig. This screen shows them greyed out. Only offered when OneConfig is installed. |
+| Custom | The settings on this screen apply. |
+| OneConfig (default) | The settings registered with OneConfig apply, and are changed in OneConfig. This screen shows them greyed out. Only offered when OneConfig is installed. |
 
-If OneConfig mode is selected but OneConfig is later removed, the custom settings apply until you pick another mode.
+OneConfig mode is the default. Without OneConfig installed, the settings on this screen apply instead, and the button shows Custom; once you install OneConfig, it takes over. The same happens if OneConfig is removed later.
 
-In custom mode, every flash toggle and the sharpness particles are on by default, the crit particles are off, and the hurt color is vanilla red at vanilla strength (30 %). The first preset color restores vanilla red. Settings are saved to `config/hiteffect.json` as soon as you change them.
+On this screen, every flash toggle and the sharpness particles are on by default, the crit particles are off, and the hurt color is vanilla red at vanilla strength (30 %). The first preset color restores vanilla red. Settings are saved to `config/hiteffect.json` as soon as you change them.
 
 ## Development
 

@@ -15,9 +15,15 @@ public enum ConfigMode {
 	@SerializedName("custom")
 	CUSTOM("custom"),
 
-	/** The settings registered with OneConfig apply. Only available while OneConfig is installed. */
+	/**
+	 * The settings registered with OneConfig apply. Only available while OneConfig is installed; without it, the mod's
+	 * own settings apply as in {@link #CUSTOM}.
+	 */
 	@SerializedName("oneconfig")
 	ONECONFIG("oneconfig");
+
+	/** The mode of a new installation. Without OneConfig installed, it applies the mod's own settings. */
+	public static final ConfigMode DEFAULT = ONECONFIG;
 
 	private final String id;
 

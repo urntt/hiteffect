@@ -50,9 +50,9 @@ The mod version itself follows [Semantic Versioning](https://semver.org/); the `
 - The mod never sends packets.
 - Configuration mode, shown as the first button of the configuration screen:
   - Disabled: every feature is off and the hurt color is vanilla.
-  - Custom (default): the mod's own settings apply.
-  - OneConfig: the settings registered with OneConfig apply, and the mod's own settings are shown greyed out with the values OneConfig currently applies. This mode is only offered when OneConfig is installed. If the configuration file selects it but OneConfig is missing, the mod behaves as in Custom mode and keeps the saved mode until the player changes it.
-- Defaults in Custom mode: every flash toggle and the sharpness particles are on, crit particles on every hit are off (they would hide real critical hits), the hurt color is vanilla red (`#FF0000`) at 30 % strength, and the rainbow is off.
+  - Custom: the mod's own settings apply.
+  - OneConfig (default, `ConfigMode.DEFAULT`): the settings registered with OneConfig apply, and the mod's own settings are shown greyed out with the values OneConfig currently applies. This mode is only offered on the mode button when OneConfig is installed. While the configuration file selects it but OneConfig is missing, which is the default without OneConfig, the mod behaves as in Custom mode, the mode button shows Custom, and the saved mode is kept until the player changes it.
+- Defaults of the mod's own settings: every flash toggle and the sharpness particles are on, crit particles on every hit are off (they would hide real critical hits), the hurt color is vanilla red (`#FF0000`) at 30 % strength, and the rainbow is off.
 - A key binding opens the configuration screen. It is unbound by default. Mod Menu opens the same screen.
 - Settings are saved to the configuration file immediately when changed.
 

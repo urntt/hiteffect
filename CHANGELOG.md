@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- New installations start in OneConfig mode. Without OneConfig installed, it applies the mod's own settings as before, so OneConfig takes over as soon as it is installed. Existing configuration files keep their mode.
+
 ## [1.0.0+26.3] - 2026-11-19
 
 ### Added

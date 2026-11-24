@@ -51,15 +51,17 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 	public void runTest(final ClientGameTestContext context) {
 		// The run directory is deleted before each run, so this is the state of a fresh installation.
 		HitEffectConfig config = HitEffectClient.config();
-		check(config.storedMode() == ConfigMode.CUSTOM, "the default mode should be custom, was " + config.storedMode());
+		check(config.storedMode() == ConfigMode.ONECONFIG, "the default mode should be OneConfig, was " + config.storedMode());
 		check(EffectValues.copyOf(config).equals(EffectValues.DEFAULTS), "the custom settings should start at the defaults, were " + EffectValues.copyOf(config));
 		HitEffectConfig saved = HitEffectConfig.load(HitEffectConfig.defaultPath());
-		check(saved.storedMode() == ConfigMode.CUSTOM && EffectValues.copyOf(saved).equals(EffectValues.DEFAULTS),
+		check(saved.storedMode() == ConfigMode.ONECONFIG && EffectValues.copyOf(saved).equals(EffectValues.DEFAULTS),
 				"the config file should be created with the defaults");
 		boolean oneConfigInstalled = FabricLoader.getInstance().isModLoaded(OneConfigBridge.MOD_ID);
 		check(OneConfigBridge.isAvailable() == oneConfigInstalled,
 				"OneConfig mode should be available exactly when OneConfig is installed (installed: " + oneConfigInstalled + ")");
+		checkDefaultMode(context, config, oneConfigInstalled);
 
+		context.runOnClient(client -> config.setMode(ConfigMode.CUSTOM));
 		context.setScreen(() -> new HitEffectConfigScreen(null));
 		parkCursor(context);
 		context.takeScreenshot("hiteffect-config-custom");
@@ -74,6 +76,33 @@ public final class ConfigScreenGameTest implements FabricClientGameTest {
 		}
 		setLanguage(context, "en_us");
 		context.setScreen(() -> null);
+	}
+
+	/**
+	 * A new installation is in OneConfig mode. Without OneConfig, that mode applies the mod's own settings, and the
+	 * mode button shows custom mode, as the only offered modes are disabled and custom.
+	 */
+	private static void checkDefaultMode(final ClientGameTestContext context, final HitEffectConfig config, final boolean oneConfigInstalled) {
+		ConfigMode expected = oneConfigInstalled ? ConfigMode.ONECONFIG : ConfigMode.CUSTOM;
+		check(config.effectiveMode() == expected, "the default mode should apply as " + expected + ", applied as " + config.effectiveMode());
+		if (!oneConfigInstalled) {
+			check(HitEffectClient.settings() == config, "without OneConfig, the default mode should apply the mod's own settings");
+		}
+
+		context.setScreen(() -> new HitEffectConfigScreen(null));
+		parkCursor(context);
+		ConfigMode shown = context.computeOnClient(client -> (ConfigMode) widgets(client).stream()
+				.filter(widget -> widget instanceof CycleButton<?> cycle && cycle.getValue() instanceof ConfigMode)
+				.map(widget -> ((CycleButton<?>) widget).getValue())
+				.findFirst()
+				.orElseThrow(() -> new AssertionError("mode button not found")));
+		check(shown == expected, "the mode button should show " + expected + " by default, showed " + shown);
+		if (expected == ConfigMode.CUSTOM) {
+			check(settingsActive(context), "settings should be editable when the default mode applies the mod's own settings");
+		} else {
+			check(settingsInactive(context), "settings should be greyed out in the default OneConfig mode");
+		}
+		context.takeScreenshot("hiteffect-config-default");
 	}
 
 	/**

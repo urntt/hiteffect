@@ -155,7 +155,7 @@ public final class HitEffectConfig implements EffectSettings {
 	 * The serialized form. Field initializers are the defaults, which also apply to keys missing from the file.
 	 */
 	private static final class Settings {
-		private ConfigMode mode = ConfigMode.CUSTOM;
+		private ConfigMode mode = ConfigMode.DEFAULT;
 		/** Whether each {@link FlashPart} flashes, by its id. */
 		private Map<String, Boolean> flash = defaultFlash();
 		private int hurtColor = EffectValues.DEFAULTS.hurtColor();
@@ -175,7 +175,7 @@ public final class HitEffectConfig implements EffectSettings {
 		/** Replaces values a hand-edited file may have put out of range, and adds parts missing from it. */
 		private Settings normalized() {
 			if (this.mode == null) {
-				this.mode = ConfigMode.CUSTOM;
+				this.mode = ConfigMode.DEFAULT;
 			}
 			Map<String, Boolean> flash = defaultFlash();
 			if (this.flash != null) {
