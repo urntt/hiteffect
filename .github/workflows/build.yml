@@ -22,6 +22,10 @@ jobs:
         with:
           java-version: ${{ steps.java.outputs.version }}
           distribution: 'microsoft'
+      # Caches Gradle's dependencies and Loom's Minecraft files between runs, so builds rarely download them
+      # again and do not run into Maven Central's rate limit (HTTP 429).
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build
